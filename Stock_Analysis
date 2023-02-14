@@ -44,3 +44,89 @@ stocks = {}
 # Loop through each stock in the stock_list and return the Adj Close
 for i_stock in stock_list:
     stocks[i_stock] = yf.download(i_stock,startdate,enddate)[['Adj Close']]
+
+# Examine the 'AMD' Adj Close from the stocks dictionary
+stocks['AMD'].head()
+
+## Create the Equal-Weighted Portfolio
+
+To create the equal-weighted portfolio, we need to add some additional columns to the DataFrames in the `stocks` dictionary. The three columns that we will build are:
+
+- Normalized Return = Adjusted Close / Adjusted Close on the `startdate` of the portfolio
+- Allocation = Normalized Return * 0.25 (equal weighting for each of the four stocks)
+- Position Value = Allocation * 10,000 (value of the portfolio)
+
+stock_data.iloc[0]['Adj Close']
+stock_data['Adj Close']/stock_data.iloc[0]['Adj Close']
+
+# Create 'Normalized Return' column for each stock
+for stock_name, stock_data in stocks.items():
+    stock_data['Normalized Return'] = stock_data['Adj Close']/stock_data.iloc[0,:]['Adj Close']
+    
+stocks['AAPL'].head()
+
+# Create allocation for each stock - equally weighted in our initial portfolio
+for stock_name, stock_data in stocks.items():
+    stock_data['Allocation'] = stock_data['Normalized Return'] * 0.25
+    
+stocks['MSFT']
+
+# Set the value of the portfolio to $10k
+for stock_name, stock_data in stocks.items():
+    stock_data['Position Value'] = stock_data['Allocation'] * 10000
+
+stocks['ORCL'].head()
+## Visualize the Portfolio Performance
+To visualize the performance of the portfolio, we can create two line charts that show the return of the portfolio and the return if individual stock over time, as well as total vale for the portfolio
+
+# Create position_values dictionary
+position_values = {}
+
+for stock_name, stock_data in stocks.items():
+    position_values[stock_name] = stock_data['Position Value']
+# Convert the position_values dictionary to a DataFrame
+position_values = pd.DataFrame(data=position_values)
+position_values.head()
+
+# Add 'Total' column to position values, summing the other columns
+position_values['Total'] = position_values.sum(axis=1)
+
+position_values.head()
+
+# View the total portfolio
+plt.figure(figsize=(12,4))
+plt.plot(position_values.iloc[:,0:4])
+plt.title('Equal-Weighted Portfolio Stock Performance')
+plt.xlabel('Total Value')
+plt.ylabel('Date');
+
+## Calculate Performance Metrics for the Portfolio
+Now that we have created and visualized the equal-weighted portfolio, we can calculate a few metrics to further measure the performance of the portfolio. We will create five performances metrics:
+ * Cumulative Return
+ * Mean Daily Return
+ * Standard Deviation Daily Return
+ * Sharpe Ratio
+ * Annualized Sharpe Ratio
+ 
+ # Define the end and start value of the portfolio
+start_value = position_values['Total'][0]
+end_value = position_values['Total'][-1]
+
+# Calculate the cumulative portfolio return as a percentage
+cummulative_return = end_value/start_value - 1
+print(cummulative_return)
+
+# Create a 'Daily Returns' column
+position_values['Daily Returns'] = position_values['Total'].pct_change()
+position_values.head()
+
+# Calculate the mean Daily Return 
+mean_daily_return = position_values['Daily Returns'].mean()
+
+print('The mean daily return is:', str(mean_daily_return))
+
+# Calculate the standard deviation of Daily Return 
+std_daily_return = position_values['Daily Returns'].std()
+
+print('The std daily return is:'')
+
