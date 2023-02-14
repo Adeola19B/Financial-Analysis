@@ -19,8 +19,28 @@ import pandas_datareader as pdr
 %matplotlib inline
 
 ## Lets find out more information about our stocks
+The four stocks of interest are:
+1. Advanced Micro Devices, Inc. - Common Stock(AMD)
+2. Apple Inc. - Common Stock(AAPL)
+3. Microsoft Corporation - Common Stock(MSFT)
+4. Oracle Corporation Common Stock(ORCL)
+
 nasdaq_sym = pdr.nasdaq_trader.get_nasdaq_symbols()
 nasdaq_sym.loc['AMD']
 nasdaq_sym.loc['AAPL']
 nasdaq_sym.loc['MSFT']
 nasdaq_sym.loc['ORCL']
+
+# Import two years of data for the four stock from yahoo finance
+# Set start and end date parameters
+startdate = dt.datetime(2020,1,1)
+enddate = dt.datetime(2021,12,31)
+# List the four stock ticker symbols for our portfolio
+stock_list = ['AMD','AAPL','MSFT','ORCL']
+
+# Create an empty dictionary to store our stock info
+stocks = {}
+
+# Loop through each stock in the stock_list and return the Adj Close
+for i_stock in stock_list:
+    stocks[i_stock] = yf.download(i_stock,startdate,enddate)[['Adj Close']]
